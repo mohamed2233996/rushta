@@ -1,65 +1,173 @@
-import Image from "next/image";
+// app/page.tsx
+"use client";
+
+import { useState } from "react";
+import LandingPage from "@/components/LandingPage";
+import { useAuth } from "@/hooks/useAuth"; // استدعاء الهوك الجديد
+import BookingWizard from "./booking/page";
+import PatientDashboard from "./dashboard/page";
+
+type ScreenType = "landing" | "booking" | "patient-dashboard" | "doctor-dashboard";
 
 export default function Home() {
+  const [currentScreen, setCurrentScreen] = useState<ScreenType>("landing");
+  const [successBookingData, setSuccessBookingData] = useState<any>(null);
+
+  // استخدام الـ Hook الموحد
+  const { isLoggedIn, loading, login, signUp } = useAuth();
+
+  // حالات الـ Modal والـ Form
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState(""); // حقل التليفون الاختياري
+  const [needsVerification, setNeedsVerification] = useState(false); // حالة فحص البريد
+
+  const handleBookingSuccess = (details: any) => {
+    setSuccessBookingData(details);
+    setCurrentScreen("patient-dashboard");
+  };
+
+  const handleNavigation = (screen: ScreenType) => {
+    if (screen === "patient-dashboard" && !isLoggedIn) {
+      setShowLoginModal(true);
+    } else {
+      setCurrentScreen(screen);
+    }
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      if (isSignUp) {
+        // إنشاء حساب مع تمرير التليفون الاختياري
+        await signUp(email, password, phone);
+        setNeedsVerification(true); // تفعيل شاشة "افحص بريدك الإلكتروني"
+      } else {
+        // تسجيل دخول مباشر
+        await login(email, password);
+        setShowLoginModal(false);
+        setCurrentScreen("patient-dashboard");
+      }
+    } catch (error: any) {
+      alert(`عذراً: ${error.message || "حدث خطأ ما"}`);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowLoginModal(false);
+    setIsSignUp(false);
+    setNeedsVerification(false);
+    setEmail("");
+    setPassword("");
+    setPhone("");
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="flex-1 flex flex-col w-full min-h-screen bg-background text-text-main transition-colors relative">
+
+
+      <div className="flex-1 flex flex-col">
+          <LandingPage />
+
+      </div>
+
+      {/* 🔐 بوب أب التسجيل والدخول الديناميكي */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn" dir="rtl">
+          <div className="bg-card-bg border border-card-border w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-5 text-right relative font-['Cairo']">
+
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 left-4 text-text-muted hover:text-text-main text-lg cursor-pointer select-none"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              ✕
+            </button>
+
+            
+              <>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-text-main">
+                    {isSignUp ? "إنشاء حساب مريض جديد" : "تسجيل دخول المريض"}
+                  </h3>
+                  <p className="text-xs text-text-muted">
+                    {isSignUp ? "سجل بياناتك لحفظ روشتاتك الطبية سحابياً." : "أدخل بيانات حسابك لعرض الروشتات والحجوزات الحالية."}
+                  </p>
+                </div>
+
+                <form onSubmit={handleAuthSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-text-main">البريد الإلكتروني:</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="name@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
+                      dir="ltr"
+                    />
+                  </div>
+
+                  {isSignUp && (
+                    <div className="space-y-1.5 animate-fadeIn">
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-bold text-text-main">رقم الهاتف:</label>
+                        <span className="text-[10px] text-text-muted bg-card-hover px-2 py-0.5 rounded-md">اختياري</span>
+                      </div>
+                      <input
+                        type="tel"
+                        placeholder="01xxxxxxxxx"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
+                        dir="ltr"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-text-main">كلمة السر:</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
+                      dir="ltr"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-brand hover:bg-brand-hover text-background font-black py-3 rounded-xl transition shadow-md cursor-pointer text-sm disabled:opacity-50"
+                  >
+                    {loading ? "جاري المعالجة..." : isSignUp ? "إنشاء الحساب الآن" : "تسجيل الدخول"}
+                  </button>
+                </form>
+
+                <div className="text-center pt-2 border-t border-card-border text-xs">
+                  <span className="text-text-muted">
+                    {isSignUp ? "لديك حساب بالفعل؟" : "ليس لديك حساب طبي؟"}
+                  </span>{" "}
+                  <button
+                    onClick={() => { setIsSignUp(!isSignUp); setPhone(""); }}
+                    className="text-brand font-bold hover:underline cursor-pointer"
+                  >
+                    {isSignUp ? "تسجيل الدخول من هنا" : "أنشئ حساباً جديداً"}
+                  </button>
+                </div>
+              </>
+            
+
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+
+    </main>
   );
 }
