@@ -5,6 +5,8 @@ import Link from "next/link";
 import React from "react";
 
 
+import BookingSteps from "@/components/BookingSteps";
+
 export default function LandingPage() {
     // جلب تاريخ اليوم ديناميكياً ليظهر في الروشتة التفاعلية بشكل حي
     const todayDate = new Date().toISOString().split('T')[0];
@@ -167,6 +169,8 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+            <BookingSteps />
+
 
         </div>
     );
