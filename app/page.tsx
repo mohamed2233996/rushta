@@ -1,11 +1,10 @@
 // app/page.tsx
 "use client";
+import { useSearchParams } from "next/navigation";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LandingPage from "@/components/LandingPage";
-import { useAuth } from "@/hooks/useAuth"; // استدعاء الهوك الجديد
-import BookingWizard from "./booking/page";
-import PatientDashboard from "./dashboard/page";
+import { useAuth } from "@/hooks/useAuth";
 
 type ScreenType = "landing" | "booking" | "patient-dashboard" | "doctor-dashboard";
 
@@ -23,6 +22,14 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState(""); // حقل التليفون الاختياري
   const [needsVerification, setNeedsVerification] = useState(false); // حالة فحص البريد
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("openLogin") === "true") {
+      setShowLoginModal(true);
+    }
+  }, [searchParams]);
 
   const handleBookingSuccess = (details: any) => {
     setSuccessBookingData(details);
@@ -70,7 +77,7 @@ export default function Home() {
 
 
       <div className="flex-1 flex flex-col">
-          <LandingPage />
+        <LandingPage />
 
       </div>
 
@@ -86,83 +93,83 @@ export default function Home() {
               ✕
             </button>
 
-            
-              <>
-                <div className="space-y-1">
-                  <h3 className="text-xl font-black text-text-main">
-                    {isSignUp ? "إنشاء حساب مريض جديد" : "تسجيل دخول المريض"}
-                  </h3>
-                  <p className="text-xs text-text-muted">
-                    {isSignUp ? "سجل بياناتك لحفظ روشتاتك الطبية سحابياً." : "أدخل بيانات حسابك لعرض الروشتات والحجوزات الحالية."}
-                  </p>
+
+            <>
+              <div className="space-y-1">
+                <h3 className="text-xl font-black text-text-main">
+                  {isSignUp ? "إنشاء حساب مريض جديد" : "تسجيل دخول المريض"}
+                </h3>
+                <p className="text-xs text-text-muted">
+                  {isSignUp ? "سجل بياناتك لحفظ روشتاتك الطبية سحابياً." : "أدخل بيانات حسابك لعرض الروشتات والحجوزات الحالية."}
+                </p>
+              </div>
+
+              <form onSubmit={handleAuthSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-bold text-text-main">البريد الإلكتروني:</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
+                    dir="ltr"
+                  />
                 </div>
 
-                <form onSubmit={handleAuthSubmit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-bold text-text-main">البريد الإلكتروني:</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
-                      dir="ltr"
-                    />
-                  </div>
-
-                  {isSignUp && (
-                    <div className="space-y-1.5 animate-fadeIn">
-                      <div className="flex justify-between items-center">
-                        <label className="text-sm font-bold text-text-main">رقم الهاتف:</label>
-                        <span className="text-[10px] text-text-muted bg-card-hover px-2 py-0.5 rounded-md">اختياري</span>
-                      </div>
-                      <input
-                        type="tel"
-                        placeholder="01xxxxxxxxx"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
-                        dir="ltr"
-                      />
+                {isSignUp && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-bold text-text-main">رقم الهاتف:</label>
+                      <span className="text-[10px] text-text-muted bg-card-hover px-2 py-0.5 rounded-md">اختياري</span>
                     </div>
-                  )}
-
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-bold text-text-main">كلمة السر:</label>
                     <input
-                      type="password"
-                      required
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      type="tel"
+                      placeholder="01xxxxxxxxx"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                       className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
                       dir="ltr"
                     />
                   </div>
+                )}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-brand hover:bg-brand-hover text-background font-black py-3 rounded-xl transition shadow-md cursor-pointer text-sm disabled:opacity-50"
-                  >
-                    {loading ? "جاري المعالجة..." : isSignUp ? "إنشاء الحساب الآن" : "تسجيل الدخول"}
-                  </button>
-                </form>
-
-                <div className="text-center pt-2 border-t border-card-border text-xs">
-                  <span className="text-text-muted">
-                    {isSignUp ? "لديك حساب بالفعل؟" : "ليس لديك حساب طبي؟"}
-                  </span>{" "}
-                  <button
-                    onClick={() => { setIsSignUp(!isSignUp); setPhone(""); }}
-                    className="text-brand font-bold hover:underline cursor-pointer"
-                  >
-                    {isSignUp ? "تسجيل الدخول من هنا" : "أنشئ حساباً جديداً"}
-                  </button>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-bold text-text-main">كلمة السر:</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main text-left"
+                    dir="ltr"
+                  />
                 </div>
-              </>
-            
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-brand hover:bg-brand-hover text-background font-black py-3 rounded-xl transition shadow-md cursor-pointer text-sm disabled:opacity-50"
+                >
+                  {loading ? "جاري المعالجة..." : isSignUp ? "إنشاء الحساب الآن" : "تسجيل الدخول"}
+                </button>
+              </form>
+
+              <div className="text-center pt-2 border-t border-card-border text-xs">
+                <span className="text-text-muted">
+                  {isSignUp ? "لديك حساب بالفعل؟" : "ليس لديك حساب طبي؟"}
+                </span>{" "}
+                <button
+                  onClick={() => { setIsSignUp(!isSignUp); setPhone(""); }}
+                  className="text-brand font-bold hover:underline cursor-pointer"
+                >
+                  {isSignUp ? "تسجيل الدخول من هنا" : "أنشئ حساباً جديداً"}
+                </button>
+              </div>
+            </>
+
 
           </div>
         </div>
