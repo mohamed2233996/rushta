@@ -5,6 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import LandingPage from "@/components/LandingPage";
 import { useAuth } from "@/hooks/useAuth";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import BookingSteps from "@/components/BookingSteps";
+import FeaturedDoctorsSection from "@/components/FeaturedDoctorsSection";
 
 type ScreenType = "landing" | "booking" | "patient-dashboard" | "doctor-dashboard";
 
@@ -78,6 +81,9 @@ export default function Home() {
 
       <div className="flex-1 flex flex-col">
         <LandingPage />
+        <BookingSteps />
+        <TestimonialsSection />
+        <FeaturedDoctorsSection />
 
       </div>
 

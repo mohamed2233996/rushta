@@ -1,13 +1,13 @@
-// components/BookingWizard.tsx
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useBooking } from "@/hooks/useBooking";
 import { useDoctors } from "@/hooks/useDoctors";
-
+import { useSearchParams } from "next/navigation";
 
 export default function BookingWizard() {
+    const searchParams = useSearchParams();
 
     const {
         step, setStep, days,
@@ -35,6 +35,18 @@ export default function BookingWizard() {
         phone: string;
     }>(null);
 
+    const id = searchParams.get('id');
+
+    useEffect(() => {
+        if (id && doctors.length > 0 && step === 1) {
+            const matchedDoctor = doctors.find(doc => String(doc.id) === String(id));
+            
+            if (matchedDoctor) {
+                setSelectedDoctor(matchedDoctor);
+                setStep(2);
+            }
+        }
+    }, [id, doctors, step, setSelectedDoctor, setStep]);
 
 
     const handleSelectDoctor = (doc: typeof doctors[0]) => {
@@ -45,7 +57,6 @@ export default function BookingWizard() {
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!fullName || !email || !phone) return;
-
 
         setIsOtpSent(true);
         alert("محاكاة: تم إرسال كود التأكيد (1234) على موبايلك وإيميلك");
@@ -227,7 +238,6 @@ export default function BookingWizard() {
                             </p>
                         </div>
 
-                        {/* اختيار اليوم - ديناميكي من الهوك */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-text-main block text-right">١. اختر اليوم:</label>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -308,7 +318,6 @@ export default function BookingWizard() {
                                     />
                                 </div>
 
-                                {/* إيميل منفصل */}
                                 <div className="space-y-1">
                                     <label className="text-sm font-bold text-text-main">البريد الإلكتروني:</label>
                                     <input
@@ -322,7 +331,6 @@ export default function BookingWizard() {
                                     />
                                 </div>
 
-                                {/* موبايل منفصل */}
                                 <div className="space-y-1">
                                     <label className="text-sm font-bold text-text-main">رقم الهاتف:</label>
                                     <input
