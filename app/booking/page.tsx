@@ -1,14 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useBooking } from "@/hooks/useBooking";
 import { useDoctors } from "@/hooks/useDoctors";
 import { useSearchParams } from "next/navigation";
 
-export default function BookingWizard() {
+function BookingParamsHandler({
+    doctors,
+    step,
+    setSelectedDoctor,
+    setStep
+}: {
+    doctors: any[];
+    step: number;
+    setSelectedDoctor: (doc: any) => void;
+    setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>> | ((step: 1 | 2 | 3) => void);
+}) {
     const searchParams = useSearchParams();
+    const id = searchParams.get('id');
 
+    useEffect(() => {
+        if (id && doctors.length > 0 && step === 1) {
+            const matchedDoctor = doctors.find(doc => String(doc.id) === String(id));
+
+            if (matchedDoctor) {
+                setSelectedDoctor(matchedDoctor);
+                setStep(2); // الرقم 2 متوافق تماماً الآن مع النوع الجديد
+            }
+        }
+    }, [id, doctors, step, setSelectedDoctor, setStep]);
+
+    return null;
+}
+
+export default function BookingWizard() {
     const {
         step, setStep, days,
         selectedDoctor, setSelectedDoctor,
@@ -35,19 +61,7 @@ export default function BookingWizard() {
         phone: string;
     }>(null);
 
-    const id = searchParams.get('id');
-
-    useEffect(() => {
-        if (id && doctors.length > 0 && step === 1) {
-            const matchedDoctor = doctors.find(doc => String(doc.id) === String(id));
-            
-            if (matchedDoctor) {
-                setSelectedDoctor(matchedDoctor);
-                setStep(2);
-            }
-        }
-    }, [id, doctors, step, setSelectedDoctor, setStep]);
-
+    // 🛑 تم حذف السطر القديم والـ useEffect من هنا لتفادي كراش الـ Build
 
     const handleSelectDoctor = (doc: typeof doctors[0]) => {
         setSelectedDoctor(doc);
@@ -90,6 +104,16 @@ export default function BookingWizard() {
 
     return (
         <div className="min-h-screen bg-background text-text-main py-8 transition-colors" dir="rtl">
+
+            <Suspense fallback={null}>
+                <BookingParamsHandler
+                    doctors={doctors}
+                    step={step}
+                    setSelectedDoctor={setSelectedDoctor}
+                    setStep={setStep}
+                />
+            </Suspense>
+
             {bookingResult && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" dir="rtl">
                     <div className="bg-card-bg border border-card-border rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5 text-right">
@@ -130,7 +154,7 @@ export default function BookingWizard() {
                         </div>
 
                         <button
-                            onClick={() => { 
+                            onClick={() => {
                                 setBookingResult(null);
                             }}
                             className="w-full border border-card-border hover:bg-card-hover text-text-muted font-bold py-3 rounded-xl transition cursor-pointer text-sm"

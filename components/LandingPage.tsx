@@ -1,4 +1,3 @@
-// components/LandingPage.tsx
 "use client";
 
 import Link from "next/link";
@@ -7,17 +6,14 @@ import React from "react";
 
 
 export default function LandingPage() {
-    // جلب تاريخ اليوم ديناميكياً ليظهر في الروشتة التفاعلية بشكل حي
     const todayDate = new Date().toISOString().split('T')[0];
 
     return (
         <div className="bg-background text-text-main min-h-screen" dir="rtl">
 
-            {/* القسم الرئيسي (Hero Section) */}
             <section className="max-w-6xl mx-auto px-4 pt-12 pb-20 md:pt-20 md:pb-28">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
 
-                    {/* نصوص الترحيب والدعوة للإجراء */}
                     <div className="md:col-span-7 text-center md:text-right space-y-6">
 
                         <div className="inline-flex items-center gap-2 bg-brand-light text-brand px-4 py-2 rounded-full text-xs font-bold tracking-wide border border-brand/20">
@@ -43,7 +39,6 @@ export default function LandingPage() {
                             </Link>
                         </div>
 
-                        {/* أرقام وإحصائيات سريعة */}
                         <div className="pt-8 grid grid-cols-3 gap-4 border-t border-card-border max-w-md mx-auto md:mx-0">
                             <div>
                                 <p className="text-2xl font-black text-brand">+٥,٠٠٠</p>
@@ -61,7 +56,6 @@ export default function LandingPage() {
 
                     </div>
 
-                    {/* المحاكاة البصرية للروشتة الرقمية على اليسار */}
                     <div className="md:col-span-5 flex justify-center relative">
                         <div className="absolute w-80 h-80 bg-brand/10 blur-3xl rounded-full -z-10 top-10"></div>
 
@@ -125,7 +119,6 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* قسم الميزات والخصائص (Features Section) */}
             <section className="bg-card-bg border-t border-b border-card-border py-16">
                 <div className="max-w-6xl mx-auto px-4">
                     <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
