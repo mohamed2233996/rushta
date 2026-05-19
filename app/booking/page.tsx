@@ -26,7 +26,7 @@ function BookingParamsHandler({
 
             if (matchedDoctor) {
                 setSelectedDoctor(matchedDoctor);
-                setStep(2); // الرقم 2 متوافق تماماً الآن مع النوع الجديد
+                setStep(2);
             }
         }
     }, [id, doctors, step, setSelectedDoctor, setStep]);

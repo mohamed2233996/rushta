@@ -1,8 +1,8 @@
 // app/page.tsx
 "use client";
-import { useSearchParams } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react"; // 💡 أضفنا Suspense هنا
 import LandingPage from "@/components/LandingPage";
 import { useAuth } from "@/hooks/useAuth";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -10,6 +10,18 @@ import BookingSteps from "@/components/BookingSteps";
 import FeaturedDoctorsSection from "@/components/FeaturedDoctorsSection";
 
 type ScreenType = "landing" | "booking" | "patient-dashboard" | "doctor-dashboard";
+
+function SearchParamsHandler({ setShowLoginModal }: { setShowLoginModal: (show: boolean) => void }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("openLogin") === "true") {
+      setShowLoginModal(true);
+    }
+  }, [searchParams, setShowLoginModal]);
+
+  return null; // المكون ده مش بيرندر حاجة في الـ UI
+}
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>("landing");
@@ -26,13 +38,6 @@ export default function Home() {
   const [phone, setPhone] = useState(""); // حقل التليفون الاختياري
   const [needsVerification, setNeedsVerification] = useState(false); // حالة فحص البريد
 
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (searchParams.get("openLogin") === "true") {
-      setShowLoginModal(true);
-    }
-  }, [searchParams]);
 
   const handleBookingSuccess = (details: any) => {
     setSuccessBookingData(details);
@@ -52,11 +57,9 @@ export default function Home() {
 
     try {
       if (isSignUp) {
-        // إنشاء حساب مع تمرير التليفون الاختياري
         await signUp(email, password, phone);
-        setNeedsVerification(true); // تفعيل شاشة "افحص بريدك الإلكتروني"
+        setNeedsVerification(true);
       } else {
-        // تسجيل دخول مباشر
         await login(email, password);
         setShowLoginModal(false);
         setCurrentScreen("patient-dashboard");
@@ -77,14 +80,16 @@ export default function Home() {
 
   return (
     <main className="flex-1 flex flex-col w-full min-h-screen bg-background text-text-main transition-colors relative">
-
+      
+      <Suspense fallback={null}>
+        <SearchParamsHandler setShowLoginModal={setShowLoginModal} />
+      </Suspense>
 
       <div className="flex-1 flex flex-col">
         <LandingPage />
         <BookingSteps />
         <TestimonialsSection />
         <FeaturedDoctorsSection />
-
       </div>
 
       {/* 🔐 بوب أب التسجيل والدخول الديناميكي */}
@@ -99,11 +104,10 @@ export default function Home() {
               ✕
             </button>
 
-
             <>
               <div className="space-y-1">
                 <h3 className="text-xl font-black text-text-main">
-                  {isSignUp ? "إنشاء حساب مريض جديد" : "تسجيل دخول المريض"}
+                  {isSignUp ? "إنشاء حساب mريض جديد" : "تسجيل دخول المريض"}
                 </h3>
                 <p className="text-xs text-text-muted">
                   {isSignUp ? "سجل بياناتك لحفظ روشتاتك الطبية سحابياً." : "أدخل بيانات حسابك لعرض الروشتات والحجوزات الحالية."}
@@ -175,7 +179,6 @@ export default function Home() {
                 </button>
               </div>
             </>
-
 
           </div>
         </div>
