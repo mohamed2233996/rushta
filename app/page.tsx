@@ -1,8 +1,7 @@
-// app/page.tsx
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react"; // 💡 أضفنا Suspense هنا
+import { useEffect, useState, Suspense } from "react";
 import LandingPage from "@/components/LandingPage";
 import { useAuth } from "@/hooks/useAuth";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -27,15 +26,14 @@ export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>("landing");
   const [successBookingData, setSuccessBookingData] = useState<any>(null);
 
-  // استخدام الـ Hook الموحد
   const { isLoggedIn, loading, login, signUp } = useAuth();
 
-  // حالات الـ Modal والـ Form
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState(""); // حقل التليفون الاختياري
+  const [phone, setPhone] = useState("");
   const [needsVerification, setNeedsVerification] = useState(false); // حالة فحص البريد
 
 
@@ -52,22 +50,21 @@ export default function Home() {
     }
   };
 
-  const handleAuthSubmit = async (e: React.FormEvent) => {
+const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      if (isSignUp) {
-        await signUp(email, password, phone);
-        setNeedsVerification(true);
-      } else {
-        await login(email, password);
-        setShowLoginModal(false);
-        setCurrentScreen("patient-dashboard");
-      }
+        if (isSignUp) {
+            await signUp(email, password, phone, fullName);
+            handleCloseModal();
+            alert("✅ تم إنشاء حسابك!.");
+        } else {
+            await login(email, password);
+            setShowLoginModal(false);
+        }
     } catch (error: any) {
-      alert(`عذراً: ${error.message || "حدث خطأ ما"}`);
+        alert(`عذراً: ${error.message || "حدث خطأ ما"}`);
     }
-  };
+};
 
   const handleCloseModal = () => {
     setShowLoginModal(false);
@@ -76,11 +73,12 @@ export default function Home() {
     setEmail("");
     setPassword("");
     setPhone("");
+    setFullName(""); // ← ضيف السطر ده
   };
 
   return (
     <main className="flex-1 flex flex-col w-full min-h-screen bg-background text-text-main transition-colors relative">
-      
+
       <Suspense fallback={null}>
         <SearchParamsHandler setShowLoginModal={setShowLoginModal} />
       </Suspense>
@@ -92,7 +90,6 @@ export default function Home() {
         <FeaturedDoctorsSection />
       </div>
 
-      {/* 🔐 بوب أب التسجيل والدخول الديناميكي */}
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn" dir="rtl">
           <div className="bg-card-bg border border-card-border w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-5 text-right relative font-['Cairo']">
@@ -107,7 +104,7 @@ export default function Home() {
             <>
               <div className="space-y-1">
                 <h3 className="text-xl font-black text-text-main">
-                  {isSignUp ? "إنشاء حساب mريض جديد" : "تسجيل دخول المريض"}
+                  {isSignUp ? "إنشاء حساب جديد" : "تسجيل دخول "}
                 </h3>
                 <p className="text-xs text-text-muted">
                   {isSignUp ? "سجل بياناتك لحفظ روشتاتك الطبية سحابياً." : "أدخل بيانات حسابك لعرض الروشتات والحجوزات الحالية."}
@@ -115,6 +112,19 @@ export default function Home() {
               </div>
 
               <form onSubmit={handleAuthSubmit} className="space-y-4">
+                {isSignUp && (
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-text-main">الاسم الكامل:</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="مثال: محمد أحمد علي"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full p-3 rounded-xl border border-card-border focus:outline-none focus:border-brand bg-background text-text-main"
+                    />
+                  </div>
+                )}
                 <div className="space-y-1.5">
                   <label className="text-sm font-bold text-text-main">البريد الإلكتروني:</label>
                   <input

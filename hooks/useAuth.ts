@@ -28,21 +28,22 @@ export function useAuth() {
         return data;
     };
 
-    const signUp = async (email: string, password: string, phone?: string) => {
-        setLoading(true);
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    phone_number: phone || null, // تخزين اختياري
-                },
+const signUp = async (email: string, password: string, phone?: string, fullName?: string) => {
+    setLoading(true);
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                full_name: fullName || null,
+                phone_number: phone || null,
             },
-        });
-        setLoading(false);
-        if (error) throw error;
-        return data;
-    };
+        },
+    });
+    setLoading(false);
+    if (error) throw error;
+    return data;
+};
 
     const logout = async () => {
         setLoading(true);
