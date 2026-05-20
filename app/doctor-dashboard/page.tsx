@@ -39,7 +39,7 @@ export default function DoctorDashboard() {
 
     const openPrescription = (id: number) => {
         const appt = appointments.find(a => a.id === id);
-        if (appt?.prescription_data?.length > 0) {
+        if (appt?.prescription_data && appt.prescription_data.length > 0) {
             setMedicines(appt.prescription_data);
         } else {
             setMedicines([{ name: "", dose: "", duration: "" }]);
@@ -140,11 +140,10 @@ export default function DoctorDashboard() {
                                 <button
                                     key={s}
                                     onClick={() => setFilter(s)}
-                                    className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition cursor-pointer ${
-                                        filter === s
+                                    className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition cursor-pointer ${filter === s
                                             ? "bg-brand text-background border-brand"
                                             : "bg-background border-card-border text-text-muted hover:border-brand/40"
-                                    }`}
+                                        }`}
                                 >
                                     {s === "all" ? "الكل" : statusLabels[s].label}
                                     <span className="mr-1 opacity-70">
