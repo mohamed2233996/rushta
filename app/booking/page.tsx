@@ -5,6 +5,8 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useBooking } from "@/hooks/useBooking";
 import { useDoctors } from "@/hooks/useDoctors";
 import { useSearchParams } from "next/navigation";
+import { useAvailableSlots } from "@/hooks/useAvailableSlots";
+import { DaySlot } from "@/hooks/useBooking";
 
 function BookingParamsHandler({
     doctors,
@@ -50,6 +52,8 @@ export default function BookingWizard() {
     const [otpCode, setOtpCode] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { doctors, loading, error } = useDoctors();
+    const { availableSlots, loadingSlots, fetchAvailableSlots } = useAvailableSlots();
+
 
     const [bookingResult, setBookingResult] = useState<null | {
         doctor: string;
@@ -61,7 +65,19 @@ export default function BookingWizard() {
         phone: string;
     }>(null);
 
-    // 🛑 تم حذف السطر القديم والـ useEffect من هنا لتفادي كراش الـ Build
+    const handleSelectDay = (day: DaySlot) => {
+        setSelectedDay(day);
+        setSelectedTime("");
+
+        if (selectedDoctor) {
+            fetchAvailableSlots(
+                selectedDoctor.id,
+                day.fullDate.toISOString().split("T")[0],
+                selectedDoctor.timeSlots
+            );
+        }
+    };
+
 
     const handleSelectDoctor = (doc: typeof doctors[0]) => {
         setSelectedDoctor(doc);
@@ -268,7 +284,7 @@ export default function BookingWizard() {
                                 {days.map((day) => (
                                     <button
                                         key={day.id}
-                                        onClick={() => { setSelectedDay(day); setSelectedTime(""); }}
+                                        onClick={() => handleSelectDay(day)}
                                         className={`p-3 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer ${selectedDay?.id === day.id
                                             ? "border-brand bg-brand-light text-brand font-black"
                                             : "border-card-border bg-card-bg hover:border-brand/40"
@@ -285,18 +301,31 @@ export default function BookingWizard() {
                             <div className="space-y-2 pt-2">
                                 <label className="text-sm font-bold text-text-main block text-right">٢. اختر التوقيت:</label>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    {selectedDoctor.timeSlots.map((slot) => (
-                                        <button
-                                            key={slot}
-                                            onClick={() => setSelectedTime(slot)}
-                                            className={`p-2.5 text-xs rounded-xl border text-center transition cursor-pointer ${selectedTime === slot
-                                                ? "bg-text-main border-text-main text-background font-bold"
-                                                : "bg-card-bg border-card-border hover:border-brand/40 text-text-main"
-                                                }`}
-                                        >
-                                            {slot}
-                                        </button>
-                                    ))}
+                                    {loadingSlots ? (
+                                        <div className="col-span-4 text-center py-4 text-text-muted text-xs animate-pulse">
+                                            جاري تحميل المواعيد المتاحة...
+                                        </div>
+                                    ) : selectedDoctor.timeSlots.map((slot) => {
+                                        const isBooked = !availableSlots.includes(slot);
+                                        return (
+                                            <button
+                                                key={slot}
+                                                onClick={() => !isBooked && setSelectedTime(slot)}
+                                                disabled={isBooked}
+                                                className={`p-2.5 text-xs rounded-xl border text-center transition cursor-pointer relative ${isBooked
+                                                        ? "bg-card-bg border-card-border text-text-muted opacity-50 cursor-not-allowed line-through"
+                                                        : selectedTime === slot
+                                                            ? "bg-text-main border-text-main text-background font-bold"
+                                                            : "bg-card-bg border-card-border hover:border-brand/40 text-text-main"
+                                                    }`}
+                                            >
+                                                {slot}
+                                                {isBooked && (
+                                                    <span className="block text-[9px] text-red-400 mt-0.5">محجوز</span>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
