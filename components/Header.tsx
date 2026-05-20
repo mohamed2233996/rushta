@@ -80,7 +80,7 @@ const avatarLetter = userName.charAt(0).toUpperCase();
 
                     {pathname === "/" && (
                         <button
-                            onClick={() => router.push("/doctorDashboard/login")}
+                            onClick={() => router.push("/doctor-dashboard/login")}
                             className="text-sm font-medium text-text-muted hover:text-brand transition px-3 py-2 border border-card-border bg-background hover:bg-card-hover rounded-xl cursor-pointer"
                         >
                             لوحة الطبيب
