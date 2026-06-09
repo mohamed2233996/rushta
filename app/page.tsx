@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import BookingSteps from "@/components/BookingSteps";
 import FeaturedDoctorsSection from "@/components/FeaturedDoctorsSection";
+import DoctorAdd from "@/components/DoctorAdd";
 
 type ScreenType = "landing" | "booking" | "patient-dashboard" | "doctor-dashboard";
 
@@ -88,6 +89,7 @@ const handleAuthSubmit = async (e: React.FormEvent) => {
         <BookingSteps />
         <TestimonialsSection />
         <FeaturedDoctorsSection />
+        <DoctorAdd />
       </div>
 
       {showLoginModal && (

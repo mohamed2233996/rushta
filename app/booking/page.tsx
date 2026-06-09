@@ -246,7 +246,7 @@ export default function BookingWizard() {
                                         className="bg-card-bg border border-card-border p-5 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-brand/40 transition"
                                     >
                                         <div className="space-y-1 text-right">
-                                            <h3 className="font-bold text-lg text-text-main">{doc.name}</h3>
+                                            <Link href={`doctors/${doc.id}`} className="font-bold text-lg text-text-main hover:text-brand transition ">{doc.name}</Link>
                                             <p className="text-sm text-text-muted">{doc.specialty}</p>
                                             <p className="text-xs font-bold text-brand bg-brand-light inline-block px-2.5 py-1 rounded-md mt-2">
                                                 قيمة الكشف: {doc.price} ج.م

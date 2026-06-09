@@ -74,14 +74,12 @@ export default function FeaturedDoctorsSection() {
                     </div>
                 )}
 
-                {/* Error */}
                 {error && (
                     <div className="text-center py-6 text-red-500 text-sm">
                         حصل خطأ في تحميل الأطباء
                     </div>
                 )}
 
-                {/* Cards */}
                 {!loading && !error && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {doctors.map((doctor, i) => (
@@ -90,8 +88,7 @@ export default function FeaturedDoctorsSection() {
                                 className="bg-card-bg border border-card-border rounded-2xl p-5 space-y-4 hover:border-brand/40 hover:shadow-lg transition-all group"
                                 style={{ animationDelay: `${i * 0.08}s` }}
                             >
-                                {/* الهيدر: أفاتار + اسم + تخصص */}
-                                <div className="flex items-center gap-3">
+                                <Link href={`/doctors/${doctor.id}`} className="flex items-center gap-3">
                                     <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-black text-lg shrink-0 ${getAvatarColor(doctor.name)}`}>
                                         {doctor.name.replace("د.", "").trim().charAt(0)}
                                     </div>
@@ -103,9 +100,8 @@ export default function FeaturedDoctorsSection() {
                                             {doctor.specialty}
                                         </span>
                                     </div>
-                                </div>
+                                </Link>
 
-                                {/* المواعيد المتاحة */}
                                 <div className="space-y-1.5">
                                     <p className="text-[11px] text-text-muted font-bold">
                                         مواعيد متاحة:

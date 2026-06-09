@@ -1,4 +1,3 @@
-// hooks/useDoctors.ts
 "use client";
 
 import { supabase } from "@/lib/supabaseClient";
@@ -10,6 +9,11 @@ export interface Doctor {
     specialty: string;
     price: number;
     timeSlots: string[];
+    bio: string | null;
+    experienceYears: number | null;
+    location: string | null;
+    avatarUrl: string | null;
+    subSpecialties: string[];
 }
 
 export function useDoctors() {
@@ -25,7 +29,7 @@ export function useDoctors() {
 
                 const { data: doctorsData, error: doctorsError } = await supabase
                     .from("doctors")
-                    .select("id, name, specialty, price, time_slots")
+                    .select("id, name, specialty, price, time_slots, bio, experience_years, location, avatar_url, sub_specialties")
                     .order("created_at", { ascending: true });
 
                 if (doctorsError) throw doctorsError;
@@ -57,6 +61,11 @@ export function useDoctors() {
                         timeSlots: doc.time_slots.filter(
                             (slot: string) => !docBookedSlots.includes(slot)
                         ),
+                        bio: doc.bio ?? null,
+                        experienceYears: doc.experience_years ?? null,
+                        location: doc.location ?? null,
+                        avatarUrl: doc.avatar_url ?? null,
+                        subSpecialties: doc.sub_specialties ?? [],
                     };
                 });
 
